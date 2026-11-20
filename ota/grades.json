@@ -1,0 +1,26 @@
+{
+  "studentName": "T.N.M.QUÂN",
+  "academicYear": "2026-2027",
+  "term": "ĐỢT 1(05/08-15/10)",
+  "kqht": "Tốt",
+  "kqrl": "-",
+  "teacherComment": "-",
+  "subjects": [
+    {"name": "Toán", "dgtx": "7.0", "dggk": "", "dtb": "7.0"},
+    {"name": "Vật lí", "dgtx": "8.5", "dggk": "", "dtb": "8.5"},
+    {"name": "Hóa học", "dgtx": "", "dggk": "", "dtb": ""},
+    {"name": "Sinh học", "dgtx": "", "dggk": "", "dtb": ""},
+    {"name": "Tin học", "dgtx": "10", "dggk": "", "dtb": "10"},
+    {"name": "Ngữ văn", "dgtx": "9.0", "dggk": "", "dtb": "9.0"},
+    {"name": "Lịch Sử", "dgtx": "8.0", "dggk": "", "dtb": "8.0"},
+    {"name": "Địa Lí", "dgtx": "10", "dggk": "", "dtb": ""},
+    {"name": "Ngoại ngữ", "dgtx": "8.3", "dggk": "", "dtb": "8.3"},
+    {"name": "TNHN", "dgtx": "Đ", "dggk": "", "dtb": "Đ"},
+    {"name": "Tiếng dân tộc thiểu số", "dgtx": "", "dggk": "", "dtb": ""},
+    {"name": "GDTC", "dgtx": "Đ", "dggk": "", "dtb": "Đ"},
+    {"name": "GĐĐP", "dgtx": "Đ", "dggk": "", "dtb": "Đ"},
+    {"name": "GDKTPL", "dgtx": "9.5", "dggk": "", "dtb": "9.5"},
+    {"name": "GDQP", "dgtx": "9.0", "dggk": "", "dtb": "9.0"},
+    {"name": "Âm nhạc", "dgtx": "", "dggk": "", "dtb": ""}
+  ]
+}

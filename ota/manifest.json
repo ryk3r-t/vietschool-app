@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "data_files": [
+    {
+      "name": "grades.json",
+      "url": "https://raw.githubusercontent.com/ryk3r-t/vietschool-app/main/ota/grades.json",
+      "version": 1
+    },
+    {
+      "name": "timetable.json",
+      "url": "https://raw.githubusercontent.com/ryk3r-t/vietschool-app/main/ota/timetable.json",
+      "version": 1
+    }
+  ],
+  "assets": [
+    {
+      "name": "banner.jpg",
+      "url": "https://raw.githubusercontent.com/ryk3r-t/vietschool-app/main/ota/assets/banner.jpg",
+      "version": 1
+    }
+  ]
+}
