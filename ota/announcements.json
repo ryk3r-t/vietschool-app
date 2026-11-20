@@ -1,0 +1,22 @@
+{
+  "announcements": [
+    {
+      "name": "BGH Trường THPT",
+      "initials": "BGH",
+      "time": "Hôm nay 08:30",
+      "content": "Thông báo: Lịch thi giữa kỳ I năm học 2026-2027 đã được cập nhật. Học sinh kiểm tra thời khóa biểu và phòng thi tại mục Học tập.",
+      "likes": 45,
+      "comments": 12,
+      "colorHex": "0xFF3AAFB9"
+    },
+    {
+      "name": "Đoàn trường",
+      "initials": "ĐT",
+      "time": "Hôm qua 15:00",
+      "content": "Phát động phong trào thi đua chào mừng ngày Nhà giáo Việt Nam 20/11. Các chi đoàn nộp danh sách tiết mục văn nghệ trước ngày 25/11.",
+      "likes": 88,
+      "comments": 24,
+      "colorHex": "0xFFE67E22"
+    }
+  ]
+}

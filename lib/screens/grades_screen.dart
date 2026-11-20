@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../services/ota_sync_service.dart';
 
 /// Data model for a subject grade row.
 class _SubjectGrade {
@@ -12,14 +13,26 @@ class _SubjectGrade {
 }
 
 /// "Điểm" (Grades) screen – matches the provided screenshots exactly.
-class GradesScreen extends StatelessWidget {
+/// Dynamically updates from OTA cached grades.json if available.
+class GradesScreen extends StatefulWidget {
   const GradesScreen({super.key});
 
+  @override
+  State<GradesScreen> createState() => _GradesScreenState();
+}
+
+class _GradesScreenState extends State<GradesScreen> {
   static const Color _primary = Color(0xFF45B0A8);
-  static const Color _headerText = Color(0xFF0F766E);
   static const Color _bgGrey = Color(0xFFF4F6F8);
 
-  static const List<_SubjectGrade> _grades = [
+  String _studentName = 'T.N.M.QUÂN';
+  String _academicYear = '2026-2027';
+  String _term = 'ĐỢT 1(05/08-15/10)';
+  String _kqht = 'Tốt';
+  String _kqrl = '-';
+  String _teacherComment = '-';
+
+  List<_SubjectGrade> _grades = const [
     _SubjectGrade('Toán',     '7.0', '', '7.0'),
     _SubjectGrade('Vật lí',   '8.5', '', '8.5'),
     _SubjectGrade('Hóa học',  '',    '', ''),
@@ -38,20 +51,58 @@ class GradesScreen extends StatelessWidget {
     _SubjectGrade('Âm nhạc', '',    '', ''),
   ];
 
-  // Subjects shown in the bar chart (those with scores)
-  static const List<_BarData> _barData = [
+  List<_BarData> _barData = const [
     _BarData('Toán',      7.0,  false),
     _BarData('Vật lí',    8.5,  false),
     _BarData('Tin học',   10.0, false),
     _BarData('Ngữ văn',  9.0,  false),
     _BarData('Lịch Sử',  8.0,  false),
     _BarData('Ngoại ngữ',8.3,  false),
-    _BarData('TNHN',      0,   true),  // "Đ" - no numeric value
+    _BarData('TNHN',      0,   true),
     _BarData('GDTC',      0,   true),
     _BarData('GĐĐP',      0,   true),
     _BarData('GDKTPL',   9.5,  false),
     _BarData('GDQP',     9.0,  false),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOtaGrades();
+  }
+
+  Future<void> _loadOtaGrades() async {
+    final cached = await OtaSyncService.getLocalJson('grades.json');
+    if (cached != null && mounted) {
+      setState(() {
+        if (cached['studentName'] != null) _studentName = cached['studentName'];
+        if (cached['academicYear'] != null) _academicYear = cached['academicYear'];
+        if (cached['term'] != null) _term = cached['term'];
+        if (cached['kqht'] != null) _kqht = cached['kqht'];
+        if (cached['kqrl'] != null) _kqrl = cached['kqrl'];
+        if (cached['teacherComment'] != null) _teacherComment = cached['teacherComment'];
+
+        if (cached['subjects'] is List) {
+          final list = (cached['subjects'] as List).map((s) {
+            return _SubjectGrade(
+              s['name'] ?? '',
+              s['dgtx'] ?? '',
+              s['dggk'] ?? '',
+              s['dtb'] ?? '',
+            );
+          }).toList();
+          if (list.isNotEmpty) {
+            _grades = list;
+            _barData = list.where((s) => s.dtb.isNotEmpty).map((s) {
+              final isDat = s.dtb == 'Đ';
+              final val = double.tryParse(s.dtb) ?? 0.0;
+              return _BarData(s.name, val, isDat);
+            }).toList();
+          }
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +112,9 @@ class GradesScreen extends StatelessWidget {
         backgroundColor: _primary,
         foregroundColor: Colors.white,
         titleSpacing: 0,
-        title: const Text(
-          'Điểm - T.N.M.QUÂN',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        title: Text(
+          'Điểm - $_studentName',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         elevation: 0,
       ),
@@ -75,9 +126,9 @@ class GradesScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Row(
               children: [
-                Expanded(child: _DropdownBtn(title: 'Niên học', value: '2026-2027')),
+                Expanded(child: _DropdownBtn(title: 'Niên học', value: _academicYear)),
                 const SizedBox(width: 12),
-                Expanded(child: _DropdownBtn(title: 'Đợt điểm', value: 'ĐỢT 1(05/08-15/10)')),
+                Expanded(child: _DropdownBtn(title: 'Đợt điểm', value: _term)),
               ],
             ),
           ),
@@ -93,7 +144,7 @@ class GradesScreen extends StatelessWidget {
                     Expanded(
                       child: _InfoCard(
                         label: 'KQHT',
-                        value: 'Tốt',
+                        value: _kqht,
                         icon: Icons.school,
                         iconColor: const Color(0xFF5D9CEC),
                         iconBg: const Color(0xFFE5F0FF),
@@ -103,7 +154,7 @@ class GradesScreen extends StatelessWidget {
                     Expanded(
                       child: _InfoCard(
                         label: 'KQRL',
-                        value: '-',
+                        value: _kqrl,
                         icon: Icons.workspace_premium,
                         iconColor: const Color(0xFFF08A24),
                         iconBg: const Color(0xFFFFF0E6),
@@ -136,7 +187,7 @@ class GradesScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        const Text('-', style: TextStyle(fontSize: 16, color: Colors.black54)),
+                        Text(_teacherComment, style: const TextStyle(fontSize: 16, color: Colors.black54)),
                       ],
                     ),
                   ),

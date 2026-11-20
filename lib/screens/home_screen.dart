@@ -1,9 +1,48 @@
 import 'package:flutter/material.dart';
-import '../common.dart';
+import '../services/ota_sync_service.dart';
 
 /// Tab 1 – Trang chủ (news feed).
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<_Post> _posts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOtaAnnouncements();
+  }
+
+  Future<void> _loadOtaAnnouncements() async {
+    final cached = await OtaSyncService.getLocalJson('announcements.json');
+    if (cached != null && cached['announcements'] is List && mounted) {
+      final list = (cached['announcements'] as List).map((a) {
+        Color postColor = const Color(0xFF3AAFB9);
+        if (a['colorHex'] != null) {
+          try {
+            postColor = Color(int.parse(a['colorHex']));
+          } catch (_) {}
+        }
+        return _Post(
+          a['initials'] ?? 'VS',
+          a['name'] ?? 'Thông báo',
+          a['time'] ?? '',
+          a['content'] ?? '',
+          postColor,
+          a['likes'] ?? 0,
+          a['comments'] ?? 0,
+        );
+      }).toList();
+      setState(() {
+        _posts = list;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +54,8 @@ class HomeScreen extends StatelessWidget {
           child: RefreshIndicator(
             color: const Color(0xFF4FB8C2),
             onRefresh: () async {
-              await Future.delayed(const Duration(seconds: 1));
+              await OtaSyncService.syncContent();
+              await _loadOtaAnnouncements();
             },
             child: _posts.isEmpty 
                 ? _buildEmptyState() 
@@ -129,9 +169,7 @@ class _Post {
   final Color color;
   final int likes, comments;
   const _Post(this.initials, this.name, this.time, this.content, this.color, this.likes, this.comments);
-}
-
-const List<_Post> _posts = []; 
+} 
 
 class _PostCard extends StatelessWidget {
   final _Post post;
