@@ -6,10 +6,11 @@ import '../services/ota_sync_service.dart';
 class _SubjectGrade {
   final String name;
   final String dgtx;  // ĐGTX 1
+  final String dgtx2; // ĐGTX 2
   final String dggk;  // ĐGGK 1
   final String dtb;   // ĐTB
 
-  const _SubjectGrade(this.name, this.dgtx, this.dggk, this.dtb);
+  const _SubjectGrade(this.name, this.dgtx, this.dggk, this.dtb, {this.dgtx2 = ''});
 }
 
 /// "Điểm" (Grades) screen – matches the provided screenshots exactly.
@@ -95,18 +96,30 @@ class _GradesScreenState extends State<GradesScreen> {
                       onTap: () {
                         setState(() {
                           _term = item;
-                          if (item.contains('ĐỢT 2') || item.contains('Đợt 2')) {
-                            _kqht = '-';
-                            _kqrl = '-';
-                            _teacherComment = '-';
-                            _grades = _gradesTerm2;
-                            _barData = const [];
-                          } else {
+                          if (item == 'ĐỢT 1(05/08-11/10)') {
                             _kqht = 'Tốt';
                             _kqrl = '-';
                             _teacherComment = '-';
                             _grades = _gradesTerm1;
                             _barData = _barDataTerm1;
+                          } else if (item == 'ĐỢT 2(12/10-16/11)') {
+                            _kqht = '-';
+                            _kqrl = '-';
+                            _teacherComment = '-';
+                            _grades = _gradesTerm2;
+                            _barData = const [];
+                          } else if (item == 'Học kỳ 1') {
+                            _kqht = '-';
+                            _kqrl = '-';
+                            _teacherComment = '-';
+                            _grades = _gradesHk1;
+                            _barData = const [];
+                          } else {
+                            _kqht = '-';
+                            _kqrl = '-';
+                            _teacherComment = '-';
+                            _grades = _gradesEmpty;
+                            _barData = const [];
                           }
                         });
                         Navigator.pop(ctx);
@@ -205,6 +218,41 @@ class _GradesScreenState extends State<GradesScreen> {
     _SubjectGrade('GĐĐP',    '',    'Đ',   ''),
     _SubjectGrade('GDKTPL',  '',    '8.3', ''),
     _SubjectGrade('GDQP',    '9.5', '',    ''),
+  ];
+
+  static const List<_SubjectGrade> _gradesHk1 = [
+    _SubjectGrade('Toán',     '7.0', '5.8', '', dgtx2: '8.0'),
+    _SubjectGrade('Vật lí',   '8.5', '8.0', '', dgtx2: '10'),
+    _SubjectGrade('Tin học',  '10',  '10',  ''),
+    _SubjectGrade('Ngữ văn', '9.0', '7.3', '', dgtx2: '9.5'),
+    _SubjectGrade('Lịch Sử', '8.0', '7.3', ''),
+    _SubjectGrade('Địa Lí',  '10',  '8.3', ''),
+    _SubjectGrade('Ngoại ngữ', '8.3', '8.6', ''),
+    _SubjectGrade('TNHN',    'Đ',   'Đ',   ''),
+    _SubjectGrade('Tiếng dân tộc thiểu số', '', '', ''),
+    _SubjectGrade('GDTC',    'Đ',   'Đ',   ''),
+    _SubjectGrade('GDĐP',    'Đ',   'Đ',   ''),
+    _SubjectGrade('GDKTPL',  '9.5', '8.3', ''),
+    _SubjectGrade('GDQP',    '9.0', '',    '', dgtx2: '9.5'),
+  ];
+
+  static const List<_SubjectGrade> _gradesEmpty = [
+    _SubjectGrade('Toán',     '', '', ''),
+    _SubjectGrade('Vật lí',   '', '', ''),
+    _SubjectGrade('Hóa học',  '', '', ''),
+    _SubjectGrade('Sinh học', '', '', ''),
+    _SubjectGrade('Tin học',  '', '', ''),
+    _SubjectGrade('Ngữ văn', '', '', ''),
+    _SubjectGrade('Lịch Sử', '', '', ''),
+    _SubjectGrade('Địa Lí',  '', '', ''),
+    _SubjectGrade('Ngoại ngữ', '', '', ''),
+    _SubjectGrade('TNHN',    '', '', ''),
+    _SubjectGrade('Tiếng dân tộc thiểu số', '', '', ''),
+    _SubjectGrade('GDTC',    '', '', ''),
+    _SubjectGrade('GĐĐP',    '', '', ''),
+    _SubjectGrade('GDKTPL',  '', '', ''),
+    _SubjectGrade('GDQP',    '', '', ''),
+    _SubjectGrade('Âm nhạc', '', '', ''),
   ];
 
   static const List<_BarData> _barDataTerm1 = [
@@ -536,7 +584,7 @@ class _GradesScreenState extends State<GradesScreen> {
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: _GradesTable(grades: _grades),
+                  child: _GradesTable(grades: _grades, showDgtx2: _term == 'Học kỳ 1'),
                 ),
                 const SizedBox(height: 16),
 
@@ -877,7 +925,8 @@ class _DonutSegment {
 
 class _GradesTable extends StatelessWidget {
   final List<_SubjectGrade> grades;
-  const _GradesTable({required this.grades});
+  final bool showDgtx2;
+  const _GradesTable({required this.grades, this.showDgtx2 = false});
 
   static const Color _hdrBg = Color(0xFFF4FAFB);
   static const Color _hdrText = Color(0xFF0F766E);
@@ -885,6 +934,11 @@ class _GradesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double ttW = showDgtx2 ? 36 : 40;
+    final double dgtxW = showDgtx2 ? 44 : 54;
+    final double dggkW = showDgtx2 ? 48 : 54;
+    final double dtbW = showDgtx2 ? 48 : 60;
+
     return Column(
       children: [
         // ── Header row (2 lines) ──
@@ -893,25 +947,38 @@ class _GradesTable extends StatelessWidget {
           child: Row(
             children: [
               // TT – spans 2 lines
-              _hCell('TT', width: 40, height: 56),
+              _hCell('TT', width: ttW, height: 56),
               // Môn – spans 2 lines
               Expanded(child: _hCell('Môn', height: 56)),
-              // ĐGTX with sub "1"
-              Column(
-                children: [
-                  _hCell('ĐGTX', width: 54, height: 28, borderBottom: false),
-                  _hCell('1', width: 54, height: 28),
-                ],
-              ),
+              // ĐGTX with sub "1" (and "2" when showDgtx2)
+              if (showDgtx2)
+                Column(
+                  children: [
+                    _hCell('ĐGTX', width: dgtxW * 2, height: 28, borderBottom: false),
+                    Row(
+                      children: [
+                        _hCell('1', width: dgtxW, height: 28),
+                        _hCell('2', width: dgtxW, height: 28),
+                      ],
+                    ),
+                  ],
+                )
+              else
+                Column(
+                  children: [
+                    _hCell('ĐGTX', width: dgtxW, height: 28, borderBottom: false),
+                    _hCell('1', width: dgtxW, height: 28),
+                  ],
+                ),
               // ĐGGK with sub "1"
               Column(
                 children: [
-                  _hCell('ĐGGK', width: 54, height: 28, borderBottom: false),
-                  _hCell('1', width: 54, height: 28),
+                  _hCell('ĐGGK', width: dggkW, height: 28, borderBottom: false),
+                  _hCell('1', width: dggkW, height: 28),
                 ],
               ),
               // ĐTB – spans 2 lines
-              _hCell('ĐTB', width: 60, height: 56),
+              _hCell('ĐTB', width: dtbW, height: 56),
             ],
           ),
         ),
@@ -925,11 +992,12 @@ class _GradesTable extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _dCell('${i + 1}', width: 40),
+                  _dCell('${i + 1}', width: ttW),
                   Expanded(child: _dCell(g.name, bold: true, alignLeft: true)),
-                  _dCell(g.dgtx, width: 54),
-                  _dCell(g.dggk, width: 54),
-                  _dCell(g.dtb, width: 60, isTeal: g.dtb.isNotEmpty),
+                  _dCell(g.dgtx, width: dgtxW),
+                  if (showDgtx2) _dCell(g.dgtx2, width: dgtxW),
+                  _dCell(g.dggk, width: dggkW),
+                  _dCell(g.dtb, width: dtbW, isTeal: g.dtb.isNotEmpty),
                 ],
               ),
             ),
