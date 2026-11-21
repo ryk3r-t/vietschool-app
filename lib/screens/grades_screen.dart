@@ -95,6 +95,19 @@ class _GradesScreenState extends State<GradesScreen> {
                       onTap: () {
                         setState(() {
                           _term = item;
+                          if (item.contains('ĐỢT 2') || item.contains('Đợt 2')) {
+                            _kqht = '-';
+                            _kqrl = '-';
+                            _teacherComment = '-';
+                            _grades = _gradesTerm2;
+                            _barData = const [];
+                          } else {
+                            _kqht = 'Tốt';
+                            _kqrl = '-';
+                            _teacherComment = '-';
+                            _grades = _gradesTerm1;
+                            _barData = _barDataTerm1;
+                          }
                         });
                         Navigator.pop(ctx);
                       },
@@ -159,7 +172,7 @@ class _GradesScreenState extends State<GradesScreen> {
     );
   }
 
-  List<_SubjectGrade> _grades = const [
+  static const List<_SubjectGrade> _gradesTerm1 = [
     _SubjectGrade('Toán',     '7.0', '', '7.0'),
     _SubjectGrade('Vật lí',   '8.5', '', '8.5'),
     _SubjectGrade('Hóa học',  '',    '', ''),
@@ -178,7 +191,23 @@ class _GradesScreenState extends State<GradesScreen> {
     _SubjectGrade('Âm nhạc', '',    '', ''),
   ];
 
-  List<_BarData> _barData = const [
+  static const List<_SubjectGrade> _gradesTerm2 = [
+    _SubjectGrade('Toán',     '8.0', '5.8', ''),
+    _SubjectGrade('Vật lí',   '10',  '8.0', ''),
+    _SubjectGrade('Tin học',  '',    '10',  ''),
+    _SubjectGrade('Ngữ văn', '9.5', '7.3', ''),
+    _SubjectGrade('Lịch Sử', '',    '7.3', ''),
+    _SubjectGrade('Địa Lí',  '',    '8.3', ''),
+    _SubjectGrade('Ngoại ngữ', '',    '8.6', ''),
+    _SubjectGrade('TNHN',    '',    'Đ',   ''),
+    _SubjectGrade('Tiếng dân tộc thiểu số', '', '', ''),
+    _SubjectGrade('GDTC',    '',    'Đ',   ''),
+    _SubjectGrade('GĐĐP',    '',    'Đ',   ''),
+    _SubjectGrade('GDKTPL',  '',    '8.3', ''),
+    _SubjectGrade('GDQP',    '9.5', '',    ''),
+  ];
+
+  static const List<_BarData> _barDataTerm1 = [
     _BarData('Toán',      7.0,  false),
     _BarData('Vật lí',    8.5,  false),
     _BarData('Tin học',   10.0, false),
@@ -191,6 +220,9 @@ class _GradesScreenState extends State<GradesScreen> {
     _BarData('GDKTPL',   9.5,  false),
     _BarData('GDQP',     9.0,  false),
   ];
+
+  List<_SubjectGrade> _grades = _gradesTerm1;
+  List<_BarData> _barData = _barDataTerm1;
 
   @override
   void initState() {
@@ -349,10 +381,19 @@ class _GradesScreenState extends State<GradesScreen> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          height: 200,
-                          child: _BarChart(data: _barData),
-                        ),
+                        _barData.isEmpty
+                            ? Container(
+                                height: 160,
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'No chart data available.',
+                                  style: TextStyle(color: Color(0xFFE5A93C), fontSize: 14),
+                                ),
+                              )
+                            : SizedBox(
+                                height: 200,
+                                child: _BarChart(data: _barData),
+                              ),
                       ],
                     ),
                   ),
@@ -369,55 +410,84 @@ class _GradesScreenState extends State<GradesScreen> {
                         const Text('Phân bổ kết quả',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 130,
-                              height: 130,
-                              child: CustomPaint(
-                                painter: _DonutPainter(),
-                                child: const Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
+                        _barData.isEmpty
+                            ? Container(
+                                height: 160,
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'No chart data available.',
+                                  style: TextStyle(color: Color(0xFFE5A93C), fontSize: 14),
+                                ),
+                              )
+                            : Column(
+                                children: [
+                                  Row(
                                     children: [
-                                      Text('16',
-                                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF333333))),
-                                      Text('Môn',
-                                          style: TextStyle(fontSize: 14, color: Color(0xFF666666))),
+                                      SizedBox(
+                                        width: 130,
+                                        height: 130,
+                                        child: CustomPaint(
+                                          painter: _DonutPainter(),
+                                          child: const Center(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text('16',
+                                                    style: TextStyle(
+                                                        fontSize: 28,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFF333333))),
+                                                Text('Môn',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: Color(0xFF666666))),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 24),
+                                      // Legend
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: const [
+                                            _LegendRow(
+                                                color: Color(0xFF66CDAA),
+                                                label: 'Giỏi',
+                                                count: '7 môn'),
+                                            SizedBox(height: 12),
+                                            _LegendRow(
+                                                color: Color(0xFF3B82F6),
+                                                label: 'Khá',
+                                                count: '1 môn'),
+                                            SizedBox(height: 12),
+                                            _LegendRow(
+                                                color: Color(0xFF7DD3E8),
+                                                label: 'Đ',
+                                                count: '3 môn'),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            // Legend
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _LegendRow(color: Color(0xFF66CDAA), label: 'Giỏi', count: '7 môn'),
-                                  SizedBox(height: 12),
-                                  _LegendRow(color: Color(0xFF3B82F6), label: 'Khá', count: '1 môn'),
-                                  SizedBox(height: 12),
-                                  _LegendRow(color: Color(0xFF7DD3E8), label: 'Đ', count: '3 môn'),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.info_outline,
+                                          color: Colors.grey.shade400, size: 16),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Chạm vào vùng trên biểu đồ hoặc chú thích để lọc, chạm lại để bỏ lọc.',
+                                          style: TextStyle(
+                                              color: Colors.grey.shade500, fontSize: 12),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.grey.shade400, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Chạm vào vùng trên biểu đồ hoặc chú thích để lọc, chạm lại để bỏ lọc.',
-                                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
