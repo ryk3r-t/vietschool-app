@@ -27,10 +27,137 @@ class _GradesScreenState extends State<GradesScreen> {
 
   String _studentName = 'T.N.M.QUÂN';
   String _academicYear = '2026-2027';
-  String _term = 'ĐỢT 1(05/08-15/10)';
+  String _term = 'ĐỢT 1(05/08-11/10)';
   String _kqht = 'Tốt';
   String _kqrl = '-';
   String _teacherComment = '-';
+
+  static const List<String> _termOptions = [
+    'ĐỢT 1(05/08-11/10)',
+    'ĐỢT 2(12/10-16/11)',
+    'Đợt 3(17/11-21/12)',
+    'Đợt 4(22/12-28/12)',
+    'Học kỳ 1',
+    'Đợt 1(01/01/2/2026)',
+    'Đợt 2(09/02-29/3)',
+    'Đợt 3(30/3-19/04/2026)',
+    'Đợt 4(20/04_10/05/2026',
+    'Học kỳ 2',
+    'Cả năm',
+  ];
+
+  void _showTermSelectionModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext ctx) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.88,
+          ),
+          decoration: const BoxDecoration(
+            color: Color(0xFFF7F8FA),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Modal Title
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: Row(
+                  children: const [
+                    Text(
+                      'Chọn đợt điểm',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Scrollable Options List
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: _termOptions.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final item = _termOptions[index];
+                    final isSelected = item == _term;
+
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _term = item;
+                        });
+                        Navigator.pop(ctx);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected
+                                ? const Color(0xFF38A3A5)
+                                : const Color(0xFFE2E8F0),
+                            width: isSelected ? 1.5 : 1.0,
+                          ),
+                        ),
+                        child: Text(
+                          item,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            color: const Color(0xFF1E293B),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // Bottom "ĐÓNG" Button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF0F766E),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                    ),
+                    child: const Text(
+                      'ĐÓNG',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F766E),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   List<_SubjectGrade> _grades = const [
     _SubjectGrade('Toán',     '7.0', '', '7.0'),
@@ -128,7 +255,13 @@ class _GradesScreenState extends State<GradesScreen> {
               children: [
                 Expanded(child: _DropdownBtn(title: 'Niên học', value: _academicYear)),
                 const SizedBox(width: 12),
-                Expanded(child: _DropdownBtn(title: 'Đợt điểm', value: _term)),
+                Expanded(
+                  child: _DropdownBtn(
+                    title: 'Đợt điểm',
+                    value: _term,
+                    onTap: _showTermSelectionModal,
+                  ),
+                ),
               ],
             ),
           ),
@@ -381,36 +514,41 @@ class _GradesScreenState extends State<GradesScreen> {
 class _DropdownBtn extends StatelessWidget {
   final String title;
   final String value;
-  const _DropdownBtn({required this.title, required this.value});
+  final VoidCallback? onTap;
+  const _DropdownBtn({required this.title, required this.value, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11)),
-          const SizedBox(height: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(value,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
-              ),
-              const Icon(Icons.arrow_drop_down_rounded, color: Colors.white, size: 20),
-            ],
-          ),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11)),
+            const SizedBox(height: 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                ),
+                const Icon(Icons.arrow_drop_down_rounded, color: Colors.white, size: 20),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
